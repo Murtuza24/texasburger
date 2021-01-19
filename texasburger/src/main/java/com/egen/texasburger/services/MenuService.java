@@ -21,6 +21,7 @@ public interface MenuService {
 
     Optional<MenuItem> getMenuItemById(@Valid String itemId);
 
+    Menu createNewMenu(@NotNull(message = "menu object cannot be null") Menu menu);
 
-
+    void deleteMenu(@NotNull(message = "menu object cannot be null") Menu menu);
 }

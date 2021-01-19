@@ -34,5 +34,22 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.save(order);
     }
 
+    @Override
+    public void cencelOrder(Order order) {
+
+    }
+
+    @Override
+    public Order updateOrder(String orderId, Order order) {
+
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+
+        if (optionalOrder.isPresent()) {
+            // since already exists it will update rather than inserting a new entry
+            return orderRepository.save(order);
+        }
+        return null;
+    }
+
 
 }

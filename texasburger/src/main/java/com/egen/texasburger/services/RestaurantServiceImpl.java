@@ -32,4 +32,14 @@ public class RestaurantServiceImpl implements RestaurantService {
     public List<Restaurant> getRestaurantByCity(String city) {
         return restaurantRepository.findByCity(city);
     }
+
+    @Override
+    public Restaurant addNewRestaurant(Restaurant restaurant) {
+        return restaurantRepository.save(restaurant);
+    }
+
+    @Override
+    public void deleteRestaurant(Restaurant restaurant) {
+        restaurantRepository.delete(restaurant);
+    }
 }

@@ -6,10 +6,12 @@ import java.util.Optional;
 import com.egen.texasburger.exception.CustomException;
 import com.egen.texasburger.models.Menu;
 import com.egen.texasburger.models.MenuItem;
+import com.egen.texasburger.models.Restaurant;
 import com.egen.texasburger.services.MenuServImpl;
 import lombok.extern.log4j.Log4j2;
 //import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -66,5 +68,23 @@ public class MenuController {
         }
 
     }
+
+    @PostMapping(value = "/menus", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Menu> createMenu(@RequestBody Menu menu) {
+        try {
+            Menu newMenu = menuService.createNewMenu(menu);
+            return new ResponseEntity<>(newMenu, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping(value = "/deleteMenu", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> deleteMenu(Menu menu) {
+        menuService.deleteMenu(menu);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 
 }

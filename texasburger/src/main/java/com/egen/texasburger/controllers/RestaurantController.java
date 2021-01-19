@@ -5,11 +5,9 @@ import com.egen.texasburger.models.Restaurant;
 import com.egen.texasburger.services.RestaurantServiceImpl;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
@@ -71,5 +69,17 @@ public class RestaurantController {
 
     }
 
+    @PostMapping(value = "/addNewRestaurant", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> addNewRestaurant(@NotNull(message = "rest object cannot be null")
+                                              @RequestBody Restaurant restaurant) {
+        return new ResponseEntity<>(restaurantService.addNewRestaurant(restaurant), HttpStatus.OK);
 
+    }
+
+    @DeleteMapping(value = "/removeRestaurant", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> removeRestaurant(Restaurant restaurant) {
+        restaurantService.deleteRestaurant(restaurant);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

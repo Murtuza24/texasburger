@@ -35,4 +35,16 @@ public class MenuServImpl implements MenuService {
     public Optional<MenuItem> getMenuItemById(@Valid String itemId) {
         return menuRepository.getMenuItemById(itemId);
     }
+
+    @Override
+    public Menu createNewMenu(@NotNull(message = "menu object cannot be null") Menu menu) {
+        return menuRepository.save(menu);
+    }
+
+    @Override
+    public void deleteMenu(@NotNull(message = "menu object cannot be null") Menu menu) {
+        menuRepository.delete(menu);
+    }
+
+
 }

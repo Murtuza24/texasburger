@@ -71,5 +71,19 @@ public class OrderController {
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+    @PutMapping(value = "/updateOrder/{orderId}", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateOrder(@PathVariable("orderId") @NotNull String orderId,
+                                         @RequestBody Order order) {
+
+        Optional<Order> order1 = orderService.getOrderById(orderId);
+        if (order1.isPresent()) {
+            return new ResponseEntity<>(orderService.updateOrder(orderId, order), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+
+    }
 
 }
