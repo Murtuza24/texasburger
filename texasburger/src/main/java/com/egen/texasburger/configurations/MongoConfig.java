@@ -14,8 +14,7 @@ public class MongoConfig {
         return MongoClients.create("mongodb://localhost:27017");
     }
 
-    public @Bean
-    MongoTemplate mongoTemplate() {
+    public @Bean MongoTemplate mongoTemplate() {
         return new MongoTemplate(mongoClient(), "texashamburger");
     }
 }
