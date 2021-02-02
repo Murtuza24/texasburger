@@ -1,0 +1,50 @@
+version: "3"
+
+networks:
+  default:
+    external:
+      name: backend
+
+services:
+  postgresdb:
+    image: postgres:latest
+    network_mode: bridge
+    container_name: postgresdb
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=murtuza
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=texashamburger
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:latest
+    network_mode: bridge
+    container_name: mongodb
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    restart: unless-stopped
+
+  # APP*****************************************
+  texasburgerapp:
+    image: texasburgerapp:latest
+    network_mode: bridge
+    container_name: texasburgerapp
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    depends_on:
+      - postgresdb
+      - mongodb
+    links:
+      - postgresdb
+      - mongodb

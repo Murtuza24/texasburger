@@ -4,6 +4,8 @@ import com.egen.texasburger.models.Menu;
 import com.egen.texasburger.models.MenuItem;
 import com.egen.texasburger.repositories.MenuRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
@@ -16,34 +18,68 @@ import java.util.Optional;
  */
 
 @Service("menuService")
-public class MenuServImpl implements MenuService {
+public class MenuServImpl {
 
     @Autowired
     private MenuRepository menuRepository;
 
-    @Override
-    public @NotNull(message = "there must be atleast one menu category") List<Menu> getAllMenuCategories() {
-        return menuRepository.findAll();
+    // gets menus of all restaurants
+    public @NotNull(message = "there must be atleast one menu category") Page<Menu> getAllMenuCategories(Pageable pageable) {
+        return menuRepository.findAll(pageable);
     }
 
-    @Override
-    public Optional<Menu> getMenuItemsByType(@NotNull(message = "menu type cannot be null") @Valid String menuType) {
-        return menuRepository.findById(menuType);
+    // return all Menu categories of specific restaurant
+    public Page<Menu> getMenuByRestaurantId(String restaurantId, Pageable pageable) {
+        return menuRepository.findMenuByRestaurantId(restaurantId, pageable);
     }
 
-    @Override
-    public Optional<MenuItem> getMenuItemById(@Valid String itemId) {
-        return menuRepository.getMenuItemById(itemId);
+
+    // return Menu by menuId
+    public Optional<Menu> getMenuItemsByType(@NotNull(message = "menu type cannot be null") @Valid String menuId) {
+        return menuRepository.findById(menuId);
     }
 
-    @Override
+    // send menuId and itemId
+    public Optional<MenuItem> getMenuItemById(@Valid String menuId, @Valid String itemId) {
+        Optional<Menu> menu = menuRepository.findById(menuId);
+        List<MenuItem> menuItems;
+        if (menu.isPresent()) {
+            menuItems = menu.get().getMenuItems();
+            return menuItems.stream().
+                    filter(p -> p.getItemId().equals(itemId)).
+                    findFirst();
+        } else {
+            return Optional.empty();
+        }
+
+    }
+
     public Menu createNewMenu(@NotNull(message = "menu object cannot be null") Menu menu) {
         return menuRepository.save(menu);
     }
 
-    @Override
+    public Menu addMenuItem(String menuId,
+                            @NotNull(message = "menu object cannot be null") MenuItem menuItem
+    ) {
+        Optional<Menu> menu = menuRepository.findById(menuId);
+        List<MenuItem> menuItems;
+        if (menu.isPresent()) {
+            menuItems = menu.get().getMenuItems();
+            menuItems.add(menuItem);
+            menu.get().setMenuItems(menuItems);
+            return menuRepository.save(menu.get());
+
+        } else {
+            return null;
+        }
+    }
+
     public void deleteMenu(@NotNull(message = "menu object cannot be null") Menu menu) {
-        menuRepository.delete(menu);
+        menuRepository.deleteById(menu.getMenuId());
+    }
+
+    public void deleteAllMenu() {
+        menuRepository.deleteAll();
     }
 
 

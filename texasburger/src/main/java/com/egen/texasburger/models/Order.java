@@ -15,6 +15,6 @@ public class Order {
     private String customerId;
     private Double totalPrice;
     private String status;
-    private LocalDate createdTime;
+    private String createdTime;
     private List<OrderItem> orderItemList;
 }

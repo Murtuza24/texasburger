@@ -2,6 +2,7 @@ package com.egen.texasburger.models;
 
 import lombok.Data;
 
+
 /**
  * @author Murtuza
  */

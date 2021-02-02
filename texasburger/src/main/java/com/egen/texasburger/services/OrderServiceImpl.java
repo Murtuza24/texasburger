@@ -1,6 +1,7 @@
 package com.egen.texasburger.services;
 
 import com.egen.texasburger.models.Order;
+import com.egen.texasburger.models.OrderStatus;
 import com.egen.texasburger.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,8 +36,18 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void cencelOrder(Order order) {
-
+    public String cancelOrder(String orderId) {
+        Optional<Order> _order = getOrderById(orderId);
+        if (_order.isPresent()) {
+            if (_order.get().getStatus().equals(OrderStatus.ORDER_PLACED.name())) {
+                orderRepository.deleteById(orderId);
+                return "cancelled";
+            } else {
+                return "order cannot be cancelled now";
+            }
+        } else {
+            return "order does not exist!";
+        }
     }
 
     @Override
@@ -44,7 +55,9 @@ public class OrderServiceImpl implements OrderService {
 
         Optional<Order> optionalOrder = orderRepository.findById(orderId);
 
-        if (optionalOrder.isPresent()) {
+        if (optionalOrder.isPresent() && optionalOrder.get().getOrderId() != null
+                && !optionalOrder.get().getOrderItemList().isEmpty()
+                && !optionalOrder.get().getStatus().equalsIgnoreCase(OrderStatus.DELIVERED.name())) {
             // since already exists it will update rather than inserting a new entry
             return orderRepository.save(order);
         }

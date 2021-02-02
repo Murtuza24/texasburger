@@ -1,5 +1,8 @@
 package com.egen.texasburger.models;
 
+import lombok.Data;
+
+@Data
 public class Address {
 
     private String addressLine1;

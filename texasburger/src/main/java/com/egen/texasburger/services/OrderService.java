@@ -17,7 +17,7 @@ public interface OrderService {
 
     Order placeOrder(Order order);
 
-    void cencelOrder(Order order);
+    String cancelOrder(String orderId);
 
     Order updateOrder(String orderId, Order order);
 
