@@ -11,5 +11,6 @@ public enum OrderStatus {
     ORDER_UPDATED,
     OUT_FOR_DELIVERY,
     DELIVERED,
+    COMPLETED,
     CANCELLED
 }

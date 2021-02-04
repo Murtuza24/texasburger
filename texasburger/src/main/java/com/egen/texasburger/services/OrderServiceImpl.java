@@ -6,8 +6,12 @@ import com.egen.texasburger.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.TimeZone;
 
 /**
  * @author Murtuza
@@ -25,13 +29,24 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public List<Order> getAllOrders(String restaurantId) {
+        return orderRepository.findOrdersByRestaurantId(restaurantId);
+    }
+
+    @Override
     public Optional<Order> getOrderById(String orderId) {
         return orderRepository.findById(orderId);
     }
 
     @Override
     public Order placeOrder(Order order) {
-        order.setStatus("ORDER_PLACED");
+        order.setStatus(OrderStatus.ORDER_PLACED.name());
+        TimeZone tz = TimeZone.getTimeZone("America/Chicago");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'"); // Quoted "Z" to indicate UTC, no timezone offset
+        df.setTimeZone(tz);
+        String nowAsISO = df.format(new Date());
+        order.setCreatedTime(nowAsISO);
+
         return orderRepository.save(order);
     }
 
@@ -41,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
         if (_order.isPresent()) {
             if (_order.get().getStatus().equals(OrderStatus.ORDER_PLACED.name())) {
                 orderRepository.deleteById(orderId);
-                return "cancelled";
+                return "order cancelled";
             } else {
                 return "order cannot be cancelled now";
             }
@@ -52,7 +67,6 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order updateOrder(String orderId, Order order) {
-
         Optional<Order> optionalOrder = orderRepository.findById(orderId);
 
         if (optionalOrder.isPresent() && optionalOrder.get().getOrderId() != null

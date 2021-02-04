@@ -36,12 +36,17 @@ public class OrderController {
     private OrderServiceImpl orderService;
 
     @GetMapping(value = "/orders")
-    @ApiOperation(value = "Get All Orders", notes = "Get All Orders.")
+    @ApiOperation(value = "Get All Orders", notes = "Get All Orders/Orders by restaurantId")
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 204, message = "No data found"),
             @ApiResponse(code = 500, message = "Internal Server error")})
-    public ResponseEntity<List<Order>> getAllOrders() {
-        List<Order> orderList = orderService.getAllOrders();
+    public ResponseEntity<List<Order>> getAllOrders(@RequestParam(name = "restaurantId", required = false) String restaurantId) {
+        List<Order> orderList;
+        if (restaurantId == null || restaurantId.isEmpty()) {
+            orderList = orderService.getAllOrders();
+        } else {
+            orderList = orderService.getAllOrders(restaurantId);
+        }
         if (orderList.isEmpty()) {
             log.info("No Orders Found");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -67,6 +72,7 @@ public class OrderController {
         }
     }
 
+    // validate order price before placing
     @PostMapping(value = "/orders/placeOrder", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Place Order", notes = "Place a new order. Must contain atleast one item.")
@@ -76,8 +82,9 @@ public class OrderController {
             @ApiResponse(code = 500, message = "Internal Server error")})
     public ResponseEntity<Order> placeOrder(@NotNull(message = "Order object cannot be null")
                                             @RequestBody Order order) {
-        if (order.getOrderItemList().isEmpty()) {
-            log.info("Order item list cannot be empty");
+        if (order.getOrderItemList().isEmpty() || order.getRestaurantId() == null
+                || order.getRestaurantId().equals("")) {
+            log.info("need restaurant id and order items to place order");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else if (order.getStatus().equalsIgnoreCase(OrderStatus.PAYMENT_ACCEPTED.name())
                 || order.getStatus().equalsIgnoreCase(OrderStatus.DINE_IN.name())
@@ -100,26 +107,33 @@ public class OrderController {
     @PutMapping(value = "/orders/updateOrder/{orderId}", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiOperation(value = "Place Order", notes = "Place a new order. Must contain atleast one item.")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Created"),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 204, message = "No data found"),
+            @ApiResponse(code = 400, message = "Bad Request"),
             @ApiResponse(code = 500, message = "Internal Server error")})
     public ResponseEntity<Order> updateOrder(@PathVariable(name = "orderId") @NotNull String orderId,
                                              @RequestBody Order order) {
 
-        if (order != null) {
-            return new ResponseEntity<>(orderService.updateOrder(orderId, order), HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            if (orderId == null) {
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            } else if (order != null) {
+                return new ResponseEntity<>(orderService.updateOrder(orderId, order), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            throw new CustomException(e.getMessage());
         }
     }
 
     // cancel order
     @DeleteMapping(value = "/orders/cancelOrder/{orderId}")
     @ApiOperation(value = "Cancel Order", notes = "Must contain orderId.")
-    @ApiResponses(value = {@ApiResponse(code = 201, message = "Created"),
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 204, message = "No data found"),
             @ApiResponse(code = 500, message = "Internal Server error")})
-    public ResponseEntity<Map<String, Object>> updateOrder(@PathVariable(name = "orderId") @NotNull String orderId) {
+    public ResponseEntity<Map<String, Object>> cancelOrder(@PathVariable(name = "orderId") @NotNull String orderId) {
 
         Map<String, Object> resp = new HashMap<>();
 

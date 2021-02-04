@@ -1,6 +1,7 @@
 package com.egen.texasburger.controllers;
 
 import com.egen.texasburger.exception.CustomException;
+import com.egen.texasburger.models.Order;
 import com.egen.texasburger.models.Reservation;
 import com.egen.texasburger.services.ReservationService;
 import io.swagger.annotations.Api;
@@ -134,7 +135,7 @@ public class ReservationController {
 
     @PostMapping(value = "/reservations/createReservation", consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiOperation(value = "Create Reservation", notes = "Phone, Name, dateTime(ISO format)")
+    @ApiOperation(value = "Create Reservation", notes = "RestaurantId, Phone, Name, dateTime(ISO format)")
     @ApiResponses(value = {@ApiResponse(code = 201, message = "Created"),
             @ApiResponse(code = 204, message = "No data found"),
             @ApiResponse(code = 402, message = "Payment Required"),
@@ -146,7 +147,7 @@ public class ReservationController {
                     reservation.getPhone() == null || reservation.getPhone().equals("") ||
                     reservation.getCustomerName() == null || reservation.getCustomerName().equals("")
             ) {
-                log.info("restauantId needed to create reservation");
+                log.info("restaurantId needed to create reservation");
                 return new ResponseEntity<>(HttpStatus.FAILED_DEPENDENCY);
             } else {
                 Reservation _reservation = reservationService.createReservation(reservation);
@@ -163,9 +164,50 @@ public class ReservationController {
         }
     }
 
-    // delete reservation
+    // update reservation
+    @PutMapping(value = "/reservations/update/{reservationId}", consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    @ApiOperation(value = "Update Reservation", notes = "reservation id , reservation object needed.")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 204, message = "No data found"),
+            @ApiResponse(code = 500, message = "Internal Server error")})
+    public ResponseEntity<Reservation> updateOrder(@PathVariable(name = "reservationId")
+                                                   @NotNull String reservationId,
+                                                   @RequestBody Reservation reservation) {
+        try {
+            if (reservationId != null) {
+                return new ResponseEntity<>(reservationService.updateReservation(reservationId, reservation), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            throw new CustomException(e.getMessage());
+        }
+    }
 
-    //delete reservations
+    // delete reservation
+    @DeleteMapping(value = "/reservations/cancel/{reservationId}")
+    @ApiOperation(value = "Cancel reservations", notes = "Must contain reservationId.")
+    @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
+            @ApiResponse(code = 204, message = "No data found"),
+            @ApiResponse(code = 500, message = "Internal Server error")})
+    public ResponseEntity<Map<String, Object>> cancelReservation(@PathVariable(name = "reservationId")
+                                                                 @NotNull String reservationId) {
+
+        Map<String, Object> resp = new HashMap<>();
+
+        if (reservationId != null) {
+            String msg = reservationService.cancelReservation(reservationId);
+            resp.put("message", msg);
+            resp.put("status", HttpStatus.OK);
+            return new ResponseEntity<>(resp, HttpStatus.OK);
+        } else {
+            resp.put("message", "No such reservation");
+            return new ResponseEntity<>(resp, HttpStatus.NOT_FOUND);
+        }
+    }
+
+
 
 
 }

@@ -27,5 +27,7 @@ public class Reservation {
     @NotEmpty
     private String createdOn;
     private String orderId;
+    @NotEmpty
+    private String status;
     private Double reservationCharges;
 }

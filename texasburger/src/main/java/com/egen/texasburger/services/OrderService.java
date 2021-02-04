@@ -13,6 +13,8 @@ public interface OrderService {
 
     List<Order> getAllOrders();
 
+    List<Order> getAllOrders(String restaurantId);
+
     Optional<Order> getOrderById(String orderId);
 
     Order placeOrder(Order order);

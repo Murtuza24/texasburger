@@ -12,6 +12,7 @@ import java.util.List;
 public class Order {
     @Id
     private String orderId;
+    private String restaurantId;
     private String customerId;
     private Double totalPrice;
     private String status;

@@ -54,9 +54,9 @@ public class RestaurantController {
 
             if (filterBy == null || value == null) {
                 pageRestaurants = restaurantService.getAllRestaurants(paging);
-            } else if (filterBy.equals("state")) {
+            } else if (filterBy.equalsIgnoreCase("state") && !value.isEmpty()) {
                 pageRestaurants = restaurantService.getRestaurantByState(value, paging);
-            } else if (filterBy.equals("city")) {
+            } else if (filterBy.equalsIgnoreCase("city") && !value.isEmpty()) {
                 pageRestaurants = restaurantService.getRestaurantByCity(value, paging);
             } else {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

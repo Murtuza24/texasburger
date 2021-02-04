@@ -6,6 +6,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
 /**
@@ -20,10 +21,13 @@ public class RequestValidatorInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         log.info("Before Handler execution");
-
         try {
-            String user = request.getHeaders("USER").nextElement();
-            log.info("Header user Param: {}", user);
+//            Enumeration<String> en = request.getHeaderNames();
+//            while (en.hasMoreElements()) {
+//                log.info("head: {}", en.nextElement());
+//            }
+            String auth = request.getHeaders("Authorization").nextElement();
+            log.info("Header user Param: {}, Auth: {}", auth);
         } catch (NoSuchElementException | NullPointerException e) {
             log.info("User doesn't exist in the header");
             response.sendRedirect("/auth-failed");

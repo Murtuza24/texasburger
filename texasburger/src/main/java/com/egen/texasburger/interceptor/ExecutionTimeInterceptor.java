@@ -35,34 +35,36 @@ public class ExecutionTimeInterceptor implements HandlerInterceptor {
         long startTime = (Long) request.getAttribute("startTime");
         long endTime = System.currentTimeMillis();
         String url = String.valueOf(request.getRequestURL());
-        System.out.println(url);
-//        String apiPath = url.substring(url.indexOf("api"));
-//        System.out.println(apiPath);
-        String method = request.getMethod();
-        int status = response.getStatus();
 
-        log.info("Request URL: {}", url);
-        log.info("Total Time Taken: {} ms", (endTime - startTime));
+        if (url.contains("api")) {
+            String method = request.getMethod();
+            int status = response.getStatus();
 
-        Statistics executionStatistics = new Statistics();
-        executionStatistics.setApipath(url);
-        executionStatistics.setStarttime(startTime);
-        executionStatistics.setEndtime(endTime);
-        executionStatistics.setExecutiontime(endTime - startTime);
-        executionStatistics.setMethod(method);
-        executionStatistics.setStatus(status);
+            log.info("Request URL: {}", url);
+            log.info("Total Time Taken: {} ms", (endTime - startTime));
 
-        try {
-            Statistics _executionStatistics = apiStatisticsRepository.save(executionStatistics);
+            Statistics executionStatistics = new Statistics();
+            executionStatistics.setApipath(url);
+            executionStatistics.setStarttime(startTime);
+            executionStatistics.setEndtime(endTime);
+            executionStatistics.setExecutiontime(endTime - startTime);
+            executionStatistics.setMethod(method);
+            executionStatistics.setStatus(status);
 
-            log.info("stat created! ID: {}", _executionStatistics.getStatsid());
-            if (_executionStatistics != null) {
-                log.info("Execution saved in DB!! {}", _executionStatistics);
-            } else {
-                log.info("Execution time not saved in DB!!");
+            try {
+                Statistics _executionStatistics = apiStatisticsRepository.save(executionStatistics);
+
+                log.info("stat created! ID: {}", _executionStatistics.getStatsid());
+                if (_executionStatistics.getStatsid() != null) {
+                    log.info("Execution saved in DB!! {}", _executionStatistics);
+                } else {
+                    log.info("Execution time not saved in DB!!");
+                }
+            } catch (Exception e) {
+                log.info("error saving stats: {}", e.getMessage());
             }
-        } catch (Exception e) {
-            log.info("error saving stats: {}", e.getMessage());
+        } else {
+            log.info("swagger called: {}", url);
         }
 
     }

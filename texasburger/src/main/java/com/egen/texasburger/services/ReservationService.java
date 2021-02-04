@@ -1,5 +1,7 @@
 package com.egen.texasburger.services;
 
+import com.egen.texasburger.models.Order;
+import com.egen.texasburger.models.OrderStatus;
 import com.egen.texasburger.models.Reservation;
 import com.egen.texasburger.repositories.ReservationRespository;
 import org.joda.time.LocalDateTime;
@@ -57,4 +59,29 @@ public class ReservationService {
         return reservationRespository.save(reservation);
     }
 
+    public Reservation updateReservation(String reservationId, Reservation reservation) {
+
+        Optional<Reservation> _reservation = getReservationById(reservationId);
+
+        if (_reservation.isPresent() && !_reservation.get().getStatus().equalsIgnoreCase(OrderStatus.CANCELLED.name())) {
+            return reservationRespository.save(reservation);
+        }
+        return null;
+
+    }
+
+
+    public String cancelReservation(String reservationId) {
+        Optional<Reservation> _reservation = getReservationById(reservationId);
+        if (_reservation.isPresent()) {
+            if (_reservation.get().getStatus().equalsIgnoreCase(OrderStatus.ORDER_PLACED.name())) {
+                reservationRespository.deleteById(reservationId);
+                return "reservation cancelled";
+            } else {
+                return "reservation cannot be cancelled now";
+            }
+        } else {
+            return "reservation does not exist!";
+        }
+    }
 }

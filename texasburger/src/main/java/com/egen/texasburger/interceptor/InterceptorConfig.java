@@ -20,12 +20,11 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(timeInterceptor);
-
+        registry.addInterceptor(timeInterceptor)
+                .excludePathPatterns("/webjars/*");
 
         registry.addInterceptor(requstValidatorInterceptor)
                 .addPathPatterns("/api/*");
-        //.excludePathPatterns("/menus/*");
 
     }
 

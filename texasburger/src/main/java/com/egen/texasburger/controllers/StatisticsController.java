@@ -31,13 +31,18 @@ public class StatisticsController {
     @ApiResponses(value = {@ApiResponse(code = 200, message = "OK"),
             @ApiResponse(code = 204, message = "No data found"),
             @ApiResponse(code = 500, message = "Internal Server error")})
-    public ResponseEntity<?> getAllStatistics() {
+    public ResponseEntity<?> getAllStatistics(@RequestParam(value = "statId", required = false) String statId) {
         try {
-            log.info("getting all statistics");
-            return new ResponseEntity<>(executionTimeService.getAllStatistics(), HttpStatus.OK);
+            if (statId == null || statId.equalsIgnoreCase("")) {
+                log.info("getting all statistics");
+                return new ResponseEntity<>(executionTimeService.getAllStatistics(), HttpStatus.OK);
+            } else {
+                log.info("getting stats by id");
+                return new ResponseEntity<>(executionTimeService.getStatisticsById(Integer.valueOf(statId)), HttpStatus.OK);
+            }
         } catch (Exception e) {
             log.info("nothing found");
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -51,12 +56,12 @@ public class StatisticsController {
     public ResponseEntity<?> getStatsBy(@PathVariable(value = "filterBy") String filterBy,
                                         @PathVariable(value = "value") String value) {
         try {
-            if (filterBy.equals("status")) {
+            if (filterBy.equalsIgnoreCase("status") && !value.isEmpty()) {
                 log.info("getting statistics by status");
                 return new ResponseEntity<>(executionTimeService.getStatsByStatus(Integer.parseInt(value)),
                         HttpStatus.OK);
-            } else if (filterBy.equals("method")) {
-
+            } else if (filterBy.equalsIgnoreCase("method") && !value.isEmpty()) {
+                log.info("getting statistics by request methods");
                 return new ResponseEntity<>(executionTimeService.getStatsByMethod(value), HttpStatus.OK);
             } else {
                 return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
